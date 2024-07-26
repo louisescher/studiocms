@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { User, db, eq } from 'astro:db';
+import { StudioCMSUsers, db, eq } from 'astro:db';
 import { lucia } from 'studiocms-dashboard:auth';
 import AuthSecurityConfig from 'virtual:studiocms-dashboard/AuthSecurityConfig';
 import { scryptAsync } from '@noble/hashes/scrypt';
@@ -58,8 +58,8 @@ export async function POST(context: APIContext): Promise<Response> {
 
 	const name = formData.get('displayname');
 
-	const existingUsername = await db.select().from(User).where(eq(User.username, username)).get();
-	const existingEmail = await db.select().from(User).where(eq(User.email, checkemail.data)).get();
+	const existingUsername = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.username, username)).get();
+	const existingEmail = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.email, checkemail.data)).get();
 
 	if (existingUsername || existingEmail) {
 		return new Response(
@@ -90,7 +90,7 @@ export async function POST(context: APIContext): Promise<Response> {
 	const avatar = await createGravatar(checkemail.data);
 
 	const newUserId = await db
-		.insert(User)
+		.insert(StudioCMSUsers)
 		.values({
 			id: randomUUID(),
 			name: name as string,
@@ -102,7 +102,7 @@ export async function POST(context: APIContext): Promise<Response> {
 		.get();
 
 	const serverToken = await scryptAsync(newUserId.id, ScryptSalt, ScryptOpts);
-	const newUser = await db.select().from(User).where(eq(User.username, username)).get();
+	const newUser = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.username, username)).get();
 	const hashedPassword = await scryptAsync(password, serverToken, ScryptOpts);
 	const hashedPasswordString = Buffer.from(hashedPassword.buffer).toString();
 
@@ -118,11 +118,11 @@ export async function POST(context: APIContext): Promise<Response> {
 	}
 
 	await db
-		.update(User)
+		.update(StudioCMSUsers)
 		.set({
 			password: hashedPasswordString,
 		})
-		.where(eq(User.id, newUser.id));
+		.where(eq(StudioCMSUsers.id, newUser.id));
 
 	const session = await lucia.createSession(newUser.id, {});
 	const sessionCookie = lucia.createSessionCookie(session.id);

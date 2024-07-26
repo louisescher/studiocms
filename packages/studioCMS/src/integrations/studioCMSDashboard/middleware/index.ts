@@ -1,5 +1,5 @@
 import { logger } from '@it-astro:logger:StudioCMS';
-import { User, db, eq } from 'astro:db';
+import { StudioCMSUsers, db, eq } from 'astro:db';
 import { lucia } from 'studiocms-dashboard:auth';
 import type { Locals } from 'studiocms:helpers';
 import Config from 'virtual:studiocms/config';
@@ -65,7 +65,7 @@ router['/**'] = async (context, next) => {
 	if (session.fresh) {
 		const sessionCookie = lucia.createSessionCookie(session.id);
 		context.cookies.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-		const dbUser = await db.select().from(User).where(eq(User.id, user.id)).get();
+		const dbUser = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.id, user.id)).get();
 
 		locals.dbUser = dbUser;
 		locals.isLoggedIn = true;

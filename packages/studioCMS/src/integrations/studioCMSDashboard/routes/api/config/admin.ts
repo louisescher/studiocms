@@ -1,5 +1,5 @@
 import { logger } from '@it-astro:logger:StudioCMS';
-import { Permissions, db } from 'astro:db';
+import { StudioCMSPermissions, db } from 'astro:db';
 import { type Locals, authHelper } from 'studiocms:helpers';
 import Config from 'virtual:studiocms/config';
 import type { APIContext } from 'astro';
@@ -46,7 +46,7 @@ export async function POST(context: APIContext): Promise<Response> {
 	}
 
 	// Check if User already exists
-	const currentAdmins = await db.select().from(Permissions);
+	const currentAdmins = await db.select().from(StudioCMSPermissions);
 	for (const admin of currentAdmins) {
 		if (admin.username === newUser) {
 			logger.error('Admin already exists');
@@ -56,7 +56,7 @@ export async function POST(context: APIContext): Promise<Response> {
 
 	// Update Database
 	try {
-		await db.insert(Permissions).values({ username: newUser, rank: rank }).returning();
+		await db.insert(StudioCMSPermissions).values({ username: newUser, rank: rank }).returning();
 	} catch (error) {
 		// Log error
 		if (error instanceof Error) {

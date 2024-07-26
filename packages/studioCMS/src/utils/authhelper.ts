@@ -1,4 +1,4 @@
-import { Permissions, db, eq } from 'astro:db';
+import { StudioCMSPermissions, db, eq } from 'astro:db';
 import { lucia } from 'studiocms-dashboard:auth';
 import type { Session } from 'lucia';
 import type { Locals } from '../schemas/locals';
@@ -30,8 +30,8 @@ export default async function authHelper(locals: Locals): Promise<authHelperResp
 			let permissionLevel: 'admin' | 'editor' | 'visitor' | 'unknown' = 'unknown';
 			const permissions = await db
 				.select()
-				.from(Permissions)
-				.where(eq(Permissions.username, username))
+				.from(StudioCMSPermissions)
+				.where(eq(StudioCMSPermissions.username, username))
 				.get();
 
 			if (permissions) {

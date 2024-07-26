@@ -1,4 +1,4 @@
-import { PageContent, PageData, Permissions, SiteConfig, User, db, eq } from 'astro:db';
+import { StudioCMSPageContent, StudioCMSPageData, StudioCMSPermissions, StudioCMSSiteConfig, StudioCMSUsers, db, eq } from 'astro:db';
 import AuthSecurityConfig from 'virtual:studiocms-dashboard/AuthSecurityConfig';
 import { scryptAsync } from '@noble/hashes/scrypt';
 
@@ -45,7 +45,7 @@ export async function POST(context: APIContext): Promise<Response> {
 		}
 		const name = formData.get('local-admin-display-name');
 
-		const existingUser = await db.select().from(User).where(eq(User.username, username)).get();
+		const existingUser = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.username, username)).get();
 
 		if (existingUser) {
 			return new Response(
@@ -58,17 +58,17 @@ export async function POST(context: APIContext): Promise<Response> {
 			);
 		}
 		const newCreatedUser = await db
-			.insert(User)
+			.insert(StudioCMSUsers)
 			.values({
 				id: randomUUID(),
 				name: name as string,
 				username,
 			})
-			.returning({ id: User.id })
+			.returning({ id: StudioCMSUsers.id })
 			.get();
 
 		const serverToken = await scryptAsync(newCreatedUser.id, ScryptSalt, ScryptOpts);
-		const newUser = await db.select().from(User).where(eq(User.username, username)).get();
+		const newUser = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.username, username)).get();
 		const hashedPassword = await scryptAsync(password, serverToken, ScryptOpts);
 		const hashedPasswordString = Buffer.from(hashedPassword.buffer).toString();
 
@@ -84,20 +84,20 @@ export async function POST(context: APIContext): Promise<Response> {
 		}
 
 		await db
-			.update(User)
+			.update(StudioCMSUsers)
 			.set({
 				password: hashedPasswordString,
 			})
-			.where(eq(User.id, newUser.id));
+			.where(eq(StudioCMSUsers.id, newUser.id));
 
-		await db.insert(Permissions).values({
+		await db.insert(StudioCMSPermissions).values({
 			username: username,
 			rank: 'admin',
 		});
 	} else {
 		const oAuthAdmin = formData.get('oauth-admin-name');
 
-		await db.insert(Permissions).values({
+		await db.insert(StudioCMSPermissions).values({
 			username: oAuthAdmin as string,
 			rank: 'admin',
 		});
@@ -107,7 +107,7 @@ export async function POST(context: APIContext): Promise<Response> {
 	const description = formData.get('description');
 	// const ogImage = formData.get('ogImage'); // TODO: Implement this
 
-	const Config = await db.select().from(SiteConfig).where(eq(SiteConfig.id, CMSSiteConfigId)).get();
+	const Config = await db.select().from(StudioCMSSiteConfig).where(eq(StudioCMSSiteConfig.id, CMSSiteConfigId)).get();
 
 	if (Config) {
 		return new Response(
@@ -122,7 +122,7 @@ export async function POST(context: APIContext): Promise<Response> {
 
 	// Insert Site Config
 	await db
-		.insert(SiteConfig)
+		.insert(StudioCMSSiteConfig)
 		.values({
 			title: title as string,
 			description: description as string,
@@ -143,7 +143,7 @@ export async function POST(context: APIContext): Promise<Response> {
 	const LOREM_IPSUM =
 		'## Hello World \nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 
-	await db.insert(PageData).values([
+	await db.insert(StudioCMSPageData).values([
 		{
 			id: randomUUID(),
 			title: 'Home',
@@ -164,8 +164,8 @@ export async function POST(context: APIContext): Promise<Response> {
 		},
 	]);
 
-	const index = await db.select().from(PageData).where(eq(PageData.slug, 'index')).get();
-	const about = await db.select().from(PageData).where(eq(PageData.slug, 'about')).get();
+	const index = await db.select().from(StudioCMSPageData).where(eq(StudioCMSPageData.slug, 'index')).get();
+	const about = await db.select().from(StudioCMSPageData).where(eq(StudioCMSPageData.slug, 'about')).get();
 
 	if (!index || !about) {
 		return new Response(
@@ -180,7 +180,7 @@ export async function POST(context: APIContext): Promise<Response> {
 
 	// Insert Page Content
 	await db
-		.insert(PageContent)
+		.insert(StudioCMSPageContent)
 		.values([
 			{
 				id: randomUUID(),

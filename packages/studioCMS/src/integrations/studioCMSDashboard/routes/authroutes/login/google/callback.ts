@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { User, db, eq } from 'astro:db';
+import { StudioCMSUsers, db, eq } from 'astro:db';
 import { authEnvCheck, lucia } from 'studiocms-dashboard:auth';
 import { StudioCMSRoutes } from 'studiocms-dashboard:routeMap';
 import Config from 'virtual:studiocms/config';
@@ -48,7 +48,7 @@ export async function GET(context: APIContext): Promise<Response> {
 		const googleUser: GoogleUser = await response.json();
 		const { sub: googleId, picture: avatar, name, email } = googleUser;
 
-		const existingUser = await db.select().from(User).where(eq(User.googleId, googleId)).get();
+		const existingUser = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.googleId, googleId)).get();
 
 		if (existingUser) {
 			const session = await lucia.createSession(existingUser.id, {});
@@ -61,8 +61,8 @@ export async function GET(context: APIContext): Promise<Response> {
 		const fixname = name.replace(/\s/g, '').toLowerCase();
 		const username = `g_${fixname}`;
 
-		const existingUserName = await db.select().from(User).where(eq(User.username, username)).get();
-		const existingUserByEmail = await db.select().from(User).where(eq(User.email, email)).get();
+		const existingUserName = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.username, username)).get();
+		const existingUserByEmail = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.email, email)).get();
 
 		if (existingUserName || existingUserByEmail) {
 			return new Response('User already exists', {
@@ -70,7 +70,7 @@ export async function GET(context: APIContext): Promise<Response> {
 			});
 		}
 		const createdUser = await db
-			.insert(User)
+			.insert(StudioCMSUsers)
 			.values({
 				id: randomUUID(),
 				googleId,
@@ -79,7 +79,7 @@ export async function GET(context: APIContext): Promise<Response> {
 				email,
 				avatar,
 			})
-			.returning({ id: User.id })
+			.returning({ id: StudioCMSUsers.id })
 			.get();
 
 		const session = await lucia.createSession(createdUser.id, {});

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { User, db, eq } from 'astro:db';
+import { StudioCMSUsers, db, eq } from 'astro:db';
 import { lucia } from 'studiocms-dashboard:auth';
 import { authEnvCheck } from 'studiocms-dashboard:auth';
 import { StudioCMSRoutes } from 'studiocms-dashboard:routeMap';
@@ -53,8 +53,8 @@ export async function GET(context: APIContext): Promise<Response> {
 
 		const existingUserById = await db
 			.select()
-			.from(User)
-			.where(eq(User.discordId, discordId))
+			.from(StudioCMSUsers)
+			.where(eq(StudioCMSUsers.discordId, discordId))
 			.get();
 
 		if (existingUserById) {
@@ -66,10 +66,10 @@ export async function GET(context: APIContext): Promise<Response> {
 
 		const existingUserByUsername = await db
 			.select()
-			.from(User)
-			.where(eq(User.username, username))
+			.from(StudioCMSUsers)
+			.where(eq(StudioCMSUsers.username, username))
 			.get();
-		const existingUserByEmail = await db.select().from(User).where(eq(User.email, email)).get();
+		const existingUserByEmail = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.email, email)).get();
 
 		if (existingUserByUsername || existingUserByEmail) {
 			return new Response('User already exists', {
@@ -77,7 +77,7 @@ export async function GET(context: APIContext): Promise<Response> {
 			});
 		}
 		const createdUser = await db
-			.insert(User)
+			.insert(StudioCMSUsers)
 			.values({
 				id: randomUUID(),
 				discordId,
@@ -86,7 +86,7 @@ export async function GET(context: APIContext): Promise<Response> {
 				email,
 				avatar,
 			})
-			.returning({ id: User.id })
+			.returning({ id: StudioCMSUsers.id })
 			.get();
 
 		const session = await lucia.createSession(createdUser.id, {});

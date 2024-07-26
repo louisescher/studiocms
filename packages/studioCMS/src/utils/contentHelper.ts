@@ -1,4 +1,4 @@
-import { PageContent, PageData, Permissions, SiteConfig, User, asc, db, desc, eq } from 'astro:db';
+import { StudioCMSPageContent, StudioCMSPageData, StudioCMSPermissions, StudioCMSSiteConfig, User, asc, db, desc, eq } from 'astro:db';
 import type { PageDataAndContent } from 'studiocms:helpers';
 import { AstroError } from 'astro/errors';
 import { CMSSiteConfigId } from '../constVars';
@@ -60,7 +60,7 @@ export async function contentHelper(
 	const slugToUse = slug;
 	const packageToGet = pkg || '@astrolicious/studiocms';
 
-	const pageData = await db.select().from(PageData).where(eq(PageData.slug, slugToUse)).get();
+	const pageData = await db.select().from(StudioCMSPageData).where(eq(StudioCMSPageData.slug, slugToUse)).get();
 
 	if (!pageData) {
 		return {} as ContentHelperTempResponse;
@@ -77,8 +77,8 @@ export async function contentHelper(
 
 	const pageContent = await db
 		.select()
-		.from(PageContent)
-		.where(eq(PageContent.contentId, pageData.id))
+		.from(StudioCMSPageContent)
+		.where(eq(StudioCMSPageContent.contentId, pageData.id))
 		.get();
 
 	if (!pageContent) {
@@ -91,7 +91,7 @@ export async function contentHelper(
 }
 
 export async function getPageById(id: string): Promise<ContentHelperTempResponse> {
-	const pageData = await db.select().from(PageData).where(eq(PageData.id, id)).get();
+	const pageData = await db.select().from(StudioCMSPageData).where(eq(StudioCMSPageData.id, id)).get();
 
 	if (!pageData) {
 		return {} as ContentHelperTempResponse;
@@ -101,8 +101,8 @@ export async function getPageById(id: string): Promise<ContentHelperTempResponse
 
 	const pageContent = await db
 		.select()
-		.from(PageContent)
-		.where(eq(PageContent.contentId, pageData.id))
+		.from(StudioCMSPageContent)
+		.where(eq(StudioCMSPageContent.contentId, pageData.id))
 		.get();
 
 	if (!pageContent) {
@@ -122,8 +122,8 @@ export async function getPageById(id: string): Promise<ContentHelperTempResponse
 export async function getPageList(): Promise<pageDataReponse[]> {
 	const pageData: pageDataReponse[] = await db
 		.select()
-		.from(PageData)
-		.orderBy(asc(PageData.publishedAt));
+		.from(StudioCMSPageData)
+		.orderBy(asc(StudioCMSPageData.publishedAt));
 
 	if (!pageData) {
 		return [] as pageDataReponse[];
@@ -140,8 +140,8 @@ export async function getPageList(): Promise<pageDataReponse[]> {
 export async function getSiteConfig(): Promise<SiteConfigResponse> {
 	const config: PageDataAndContent['SiteConfig'] | undefined = await db
 		.select()
-		.from(SiteConfig)
-		.where(eq(SiteConfig.id, CMSSiteConfigId))
+		.from(StudioCMSSiteConfig)
+		.where(eq(StudioCMSSiteConfig.id, CMSSiteConfigId))
 		.get();
 
 	if (!config || config === undefined) {
@@ -196,7 +196,7 @@ export async function getUserList(): Promise<UserResponse[]> {
  * @returns An Array of all permissions in the database.
  */
 export async function getPermissionsList(): Promise<PageDataAndContent['Permissions'][]> {
-	const permissions = await db.select().from(Permissions);
+	const permissions = await db.select().from(StudioCMSPermissions);
 
 	if (!permissions) {
 		return [] as PageDataAndContent['Permissions'][];

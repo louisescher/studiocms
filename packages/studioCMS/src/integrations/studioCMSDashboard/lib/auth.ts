@@ -1,9 +1,9 @@
 /// <reference types="@astrojs/db" />
-import { User, db, sessionTable } from 'astro:db';
+import { StudioCMSUsers, db, StudioCMSSessions } from 'astro:db';
 import { Lucia, TimeSpan } from 'lucia';
 import { AstroDBAdapter } from './lucia-astrodb-adapter';
 
-const adapter = new AstroDBAdapter(db, sessionTable, User);
+const adapter = new AstroDBAdapter(db, StudioCMSSessions, StudioCMSUsers);
 export const lucia = new Lucia(adapter, {
 	sessionExpiresIn: new TimeSpan(2, 'w'),
 	sessionCookie: {

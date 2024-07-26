@@ -1,6 +1,76 @@
 import { NOW, column, defineTable } from 'astro:db';
 
+export const StudioCMSSessions = defineTable({
+	columns: {
+		id: column.text({ primaryKey: true }),
+		userId: column.text({ references: () => StudioCMSUsers.columns.id, optional: false }),
+		expiresAt: column.date(),
+	},
+});
+
+export const StudioCMSUsers = defineTable({
+	columns: {
+		id: column.text({ primaryKey: true }),
+		url: column.text({ optional: true }),
+		name: column.text(),
+		email: column.text({ unique: true, optional: true }),
+		avatar: column.text({ optional: true }),
+		githubId: column.number({ unique: true, optional: true, nullable: true }),
+		githubURL: column.text({ optional: true }),
+		discordId: column.text({ unique: true, optional: true, nullable: true }),
+		googleId: column.text({ unique: true, optional: true, nullable: true }),
+		auth0Id: column.text({ unique: true, optional: true, nullable: true }),
+		username: column.text(),
+		password: column.text({ optional: true }),
+		updatedAt: column.date({ default: NOW, nullable: true }),
+		createdAt: column.date({ default: NOW, nullable: true }),
+	},
+});
+
+export const StudioCMSPageData = defineTable({
+	columns: {
+		id: column.text({ primaryKey: true }),
+		package: column.text({ default: '@astrolicious/studiocms' }),
+		title: column.text(),
+		description: column.text(),
+		showOnNav: column.boolean({ default: false }),
+		publishedAt: column.date({ default: NOW }),
+		updatedAt: column.date({ optional: true }),
+		slug: column.text(),
+		contentLang: column.text({ default: 'default' }),
+		heroImage: column.text({
+			default:
+				'https://images.unsplash.com/photo-1707343843982-f8275f3994c5?q=80&w=1032&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+		}),
+	},
+});
+
+export const StudioCMSPageContent = defineTable({
+	columns: {
+		id: column.text({ primaryKey: true }),
+		contentId: column.text({ references: () => StudioCMSPageData.columns.id }),
+		contentLang: column.text({ default: 'default' }),
+		content: column.text({ multiline: true, optional: true }),
+	},
+});
+
+export const StudioCMSSiteConfig = defineTable({
+	columns: {
+		id: column.number({ primaryKey: true }),
+		title: column.text(),
+		description: column.text(),
+	},
+});
+
+export const StudioCMSPermissions = defineTable({
+	columns: {
+		username: column.text(),
+		rank: column.text(),
+	},
+});
+
 export const sessionTable = defineTable({
+	deprecated: true,
 	columns: {
 		id: column.text({ primaryKey: true }),
 		userId: column.text({ references: () => User.columns.id, optional: false }),
@@ -9,6 +79,7 @@ export const sessionTable = defineTable({
 });
 
 export const User = defineTable({
+	deprecated: true,
 	columns: {
 		id: column.text({ primaryKey: true }),
 		url: column.text({ optional: true }),
@@ -28,6 +99,7 @@ export const User = defineTable({
 });
 
 export const PageData = defineTable({
+	deprecated: true,
 	columns: {
 		id: column.text({ primaryKey: true }),
 		package: column.text({ default: '@astrolicious/studiocms' }),
@@ -46,6 +118,7 @@ export const PageData = defineTable({
 });
 
 export const PageContent = defineTable({
+	deprecated: true,
 	columns: {
 		id: column.text({ primaryKey: true }),
 		contentId: column.text({ references: () => PageData.columns.id }),
@@ -55,6 +128,7 @@ export const PageContent = defineTable({
 });
 
 export const SiteConfig = defineTable({
+	deprecated: true,
 	columns: {
 		id: column.number({ primaryKey: true }),
 		title: column.text(),
@@ -63,6 +137,7 @@ export const SiteConfig = defineTable({
 });
 
 export const Permissions = defineTable({
+	deprecated: true,
 	columns: {
 		username: column.text(),
 		rank: column.text(),

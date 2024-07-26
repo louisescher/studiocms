@@ -1,4 +1,4 @@
-import { User, db, eq } from 'astro:db';
+import { StudioCMSUsers, db, eq } from 'astro:db';
 import { lucia } from 'studiocms-dashboard:auth';
 import AuthSecurityConfig from 'virtual:studiocms-dashboard/AuthSecurityConfig';
 import { scryptAsync } from '@noble/hashes/scrypt';
@@ -27,7 +27,7 @@ export async function POST(context: APIContext): Promise<Response> {
 		});
 	}
 
-	const existingUser = await db.select().from(User).where(eq(User.username, username)).get();
+	const existingUser = await db.select().from(StudioCMSUsers).where(eq(StudioCMSUsers.username, username)).get();
 
 	if (!existingUser) {
 		return new Response(

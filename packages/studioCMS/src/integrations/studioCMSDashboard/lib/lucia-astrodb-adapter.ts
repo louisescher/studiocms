@@ -6,21 +6,21 @@ import type { Adapter, DatabaseSession, DatabaseUser, UserId } from 'lucia';
 export class AstroDBAdapter implements Adapter {
 	private db: Database;
 
-	private sessionTable: SessionTable;
-	private userTable: UserTable;
+	private sessions: Sessions;
+	private users: Users;
 
-	constructor(db: Database, sessionTable: SessionTable, userTable: UserTable) {
+	constructor(db: Database, sessions: Sessions, userTable: Users) {
 		this.db = db;
-		this.sessionTable = sessionTable;
-		this.userTable = userTable;
+		this.sessions = sessions;
+		this.users = userTable;
 	}
 
 	public async deleteSession(sessionId: string): Promise<void> {
-		await this.db.delete(this.sessionTable).where(eq(this.sessionTable.id, sessionId));
+		await this.db.delete(this.sessions).where(eq(this.sessions.id, sessionId));
 	}
 
 	public async deleteUserSessions(userId: UserId): Promise<void> {
-		await this.db.delete(this.sessionTable).where(eq(this.sessionTable.userId, userId));
+		await this.db.delete(this.sessions).where(eq(this.sessions.userId, userId));
 	}
 
 	public async getSessionAndUser(
@@ -28,12 +28,12 @@ export class AstroDBAdapter implements Adapter {
 	): Promise<[session: DatabaseSession | null, user: DatabaseUser | null]> {
 		const result = await this.db
 			.select({
-				user: this.userTable,
-				session: this.sessionTable,
+				user: this.users,
+				session: this.sessions,
 			})
-			.from(this.sessionTable)
-			.innerJoin(this.userTable, eq(this.sessionTable.userId, this.userTable.id))
-			.where(eq(this.sessionTable.id, sessionId))
+			.from(this.sessions)
+			.innerJoin(this.users, eq(this.sessions.userId, this.users.id))
+			.where(eq(this.sessions.id, sessionId))
 			.get();
 		if (!result) return [null, null];
 		return [transformIntoDatabaseSession(result.session), transformIntoDatabaseUser(result.user)];
@@ -42,8 +42,8 @@ export class AstroDBAdapter implements Adapter {
 	public async getUserSessions(userId: UserId): Promise<DatabaseSession[]> {
 		const result = await this.db
 			.select()
-			.from(this.sessionTable)
-			.where(eq(this.sessionTable.userId, userId))
+			.from(this.sessions)
+			.where(eq(this.sessions.userId, userId))
 			.all();
 		return result.map((val) => {
 			return transformIntoDatabaseSession(val);
@@ -52,7 +52,7 @@ export class AstroDBAdapter implements Adapter {
 
 	public async setSession(session: DatabaseSession): Promise<void> {
 		await this.db
-			.insert(this.sessionTable)
+			.insert(this.sessions)
 			.values({
 				id: session.id,
 				userId: session.userId,
@@ -64,16 +64,16 @@ export class AstroDBAdapter implements Adapter {
 
 	public async updateSessionExpiration(sessionId: string, expiresAt: Date): Promise<void> {
 		await this.db
-			.update(this.sessionTable)
+			.update(this.sessions)
 			.set({
 				expiresAt: expiresAt,
 			})
-			.where(eq(this.sessionTable.id, sessionId))
+			.where(eq(this.sessions.id, sessionId))
 			.run();
 	}
 
 	public async deleteExpiredSessions(): Promise<void> {
-		await this.db.delete(this.sessionTable).where(lte(this.sessionTable.expiresAt, new Date()));
+		await this.db.delete(this.sessions).where(lte(this.sessions.expiresAt, new Date()));
 	}
 }
 
@@ -97,7 +97,7 @@ function transformIntoDatabaseUser(raw: any): DatabaseUser {
 	};
 }
 
-export type UserTable = Table<
+export type Users = Table<
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	any,
 	{
@@ -117,7 +117,7 @@ export type UserTable = Table<
 	}
 >;
 
-export type SessionTable = Table<
+export type Sessions = Table<
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	any,
 	{
