@@ -1,5 +1,22 @@
 # studiocms
 
+## 0.1.0-beta.8
+
+### Patch Changes
+
+- 9c59d72: ♻️ Chore: We are now Turso Sponsored!
+- Updated dependencies [ebc297f]
+  - @studiocms/imagehandler@0.1.0-beta.8
+  - @studiocms/dashboard@0.1.0-beta.8
+  - @studiocms/renderers@0.1.0-beta.8
+  - @studiocms/auth@0.1.0-beta.8
+  - @studiocms/core@0.1.0-beta.8
+  - @studiocms/frontend@0.1.0-beta.8
+  - @studiocms/betaresources@0.1.0-beta.8
+  - @studiocms/blog@0.1.0-beta.8
+  - @studiocms/assets@0.1.0-beta.8
+  - @studiocms/robotstxt@0.1.0-beta.8
+
 ## 0.1.0-beta.7
 
 ### Patch Changes

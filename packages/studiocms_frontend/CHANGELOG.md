@@ -1,5 +1,13 @@
 # @studiocms/frontend
 
+## 0.1.0-beta.8
+
+### Patch Changes
+
+- Updated dependencies [ebc297f]
+  - @studiocms/renderers@0.1.0-beta.8
+  - @studiocms/core@0.1.0-beta.8
+
 ## 0.1.0-beta.7
 
 ### Patch Changes
