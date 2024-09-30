@@ -1,5 +1,15 @@
 # @studiocms/auth
 
+## 0.1.0-beta.8
+
+### Patch Changes
+
+- ebc297f: Update `.d.ts` file generation (non breaking)
+- Updated dependencies [ebc297f]
+  - @studiocms/dashboard@0.1.0-beta.8
+  - @studiocms/core@0.1.0-beta.8
+  - @studiocms/assets@0.1.0-beta.8
+
 ## 0.1.0-beta.7
 
 ### Patch Changes
